@@ -28,7 +28,6 @@ const app = express();
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 5000;
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
 
 const io = initializeSocket(server, CLIENT_ORIGIN);
 app.set('io', io);
@@ -37,8 +36,7 @@ app.set('io', io);
 app.use(helmet());
 
 app.use(cors({
-  origin: CLIENT_ORIGIN,
-  credentials: true,
+  origin:  "*"
 }));
 
 app.use(express.json());
