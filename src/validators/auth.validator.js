@@ -1,13 +1,17 @@
-import express from 'express';
-import { forgotPassword, login, signup } from '../controllers/auth.controller.js';
+import { z } from "zod";
 
-import { validate } from '../validators/validate.middleware.js';
-import { forgotPasswordSchema, loginSchema, signupSchema } from '../validators/auth.validator.js';
+export const signupSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  phone: z.string().min(10),
+  password: z.string().min(6),
+});
 
-const router = express.Router();
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
 
-router.post('/signup', validate(signupSchema), signup);
-router.post('/login', validate(loginSchema), login);
-router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
-
-export default router;
+export const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
