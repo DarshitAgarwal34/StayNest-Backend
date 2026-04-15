@@ -38,7 +38,7 @@ app.set('io', io);
 app.use(helmet());
 
 app.use(cors({
-  origin:  "*"
+  origin: "*"
 }));
 
 app.use(express.json());
