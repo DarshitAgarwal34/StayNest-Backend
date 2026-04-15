@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+import { query } from '../db/connection.js';
 import UserModel from '../models/user.model.js';
 
 const allowedRoles = ['student', 'renter', 'service_provider', 'admin'];
@@ -162,6 +163,61 @@ export const login = async (req, res, next) => {
         },
         token,
       },
+    });
+  } catch (error) {
+    error.statusCode = error.statusCode || 500;
+    next(error);
+  }
+};
+
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const { email, dob, role, new_password } = req.body;
+
+    if (!email || !dob || !role || !new_password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, role, date of birth, and new password are required.',
+      });
+    }
+
+    const rows = await query(
+      `
+        SELECT
+          id,
+          DATE_FORMAT(dob, '%Y-%m-%d') AS dob
+        FROM users
+        WHERE email = ? AND role = ?
+        LIMIT 1
+      `,
+      [email, role]
+    );
+
+    const user = rows[0];
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No account found for the provided email and role.',
+      });
+    }
+
+    if (String(user.dob) !== String(dob)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Date of birth does not match the account.',
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(new_password, 12);
+
+    await UserModel.update(user.id, {
+      password: hashedPassword,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password reset successfully.',
     });
   } catch (error) {
     error.statusCode = error.statusCode || 500;
