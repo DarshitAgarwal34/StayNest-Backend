@@ -29,6 +29,8 @@ const server = http.createServer(app);
 
 const PORT = process.env.PORT || 5000;
 
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "*";
+
 const io = initializeSocket(server, CLIENT_ORIGIN);
 app.set('io', io);
 
